@@ -3,11 +3,10 @@ import PyPDF2
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import faiss
-# import your LLaMA/Ollama function if available
 
 st.set_page_config(page_title="AI PDF Chatbot", layout="wide")
 st.title("AI PDF Chatbot")
-st.write("Upload a PDF and ask questions about its content!")
+st.write("Upload a PDF and ask questions!")
 
 # -----------------------------
 # Upload PDF
@@ -30,9 +29,9 @@ if uploaded_file:
     st.success("PDF loaded successfully!")
 
     # -----------------------------
-    # Split text into chunks
+    # Split text into smaller chunks
     # -----------------------------
-    def split_text(text, chunk_size=500):
+    def split_text(text, chunk_size=150):
         words = text.split()
         chunks = [" ".join(words[i:i+chunk_size]) for i in range(0, len(words), chunk_size)]
         return chunks
@@ -47,7 +46,7 @@ if uploaded_file:
     embeddings = model.encode(chunks, convert_to_numpy=True)
     embeddings = np.array(embeddings)
     if len(embeddings.shape) == 1:
-        embeddings = embeddings.reshape(1, -1)  # ensure 2D
+        embeddings = embeddings.reshape(1, -1)
 
     # Build FAISS index
     dimension = embeddings.shape[1]
@@ -65,17 +64,23 @@ if uploaded_file:
         if len(question_embedding.shape) == 1:
             question_embedding = question_embedding.reshape(1, -1)
 
-        k = min(3, len(chunks))  # top-k relevant chunks
+        k = min(5, len(chunks))  # search top 5 chunks
         D, I = index.search(question_embedding, k)
         relevant_chunks = [chunks[i] for i in I[0]]
 
-        st.subheader("Relevant text from PDF:")
-        for c in relevant_chunks:
-            st.write("-", c)
+        # -----------------------------
+        # Extract only relevant sentences
+        # -----------------------------
+        relevant_sentences = []
+        question_words = question.lower().split()
+        for chunk in relevant_chunks:
+            for sentence in chunk.split('.'):
+                if any(word in sentence.lower() for word in question_words):
+                    relevant_sentences.append(sentence.strip())
 
-        # -----------------------------
-        # Optional: Call LLaMA/Ollama here to generate final answer
-        # -----------------------------
-        # answer = call_ollama(relevant_chunks, question)
-        # st.subheader("Answer from AI:")
-        # st.write(answer)
+        st.subheader("Answer (from relevant sentences):")
+        if relevant_sentences:
+            for i, sentence in enumerate(relevant_sentences, 1):
+                st.write(f"{i}. {sentence}")
+        else:
+            st.write("No relevant text found in the PDF.")
