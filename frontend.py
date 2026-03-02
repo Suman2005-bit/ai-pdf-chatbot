@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 
 st.set_page_config(page_title="AI PDF Chatbot", page_icon="🤖")
-st.title("🤖 AI PDF Chatbot - Chat Style (Specific Answers)")
+st.title("🤖 AI PDF Chatbot - Chat Style ")
 
 # ----------------- Session State -----------------
 if "messages" not in st.session_state:
@@ -86,3 +86,4 @@ if uploaded_file:
     if st.button("Download Chat as TXT"):
         chat_text = "\n\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages])
         st.download_button("Download Q&A", chat_text, file_name="chat.txt")
+
