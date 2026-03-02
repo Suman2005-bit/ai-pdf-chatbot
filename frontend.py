@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 
 st.set_page_config(page_title="AI PDF Chatbot", page_icon="🤖")
-st.title("🤖 AI PDF Chatbot - Chat Style (Concise Answers)")
+st.title("🤖 AI PDF Chatbot - Chat Style (Specific Answers)")
 
 # ----------------- Session State -----------------
 if "messages" not in st.session_state:
@@ -47,20 +47,30 @@ if uploaded_file:
         D, I = index.search(np.array(question_embedding), 3)
         relevant_chunks = [chunks[i] for i in I[0]]
 
-        # ----------------- AI Summarization -----------------
-        # Replace this with your LLaMA / Ollama call for real summarization
-        def summarize_chunks(chunks, question):
+        # ----------------- AI Summarization Placeholder -----------------
+        # Replace this function with your LLaMA/Ollama call
+        def generate_concise_answer(chunks, question):
             """
-            Temporary summarization:
-            - Takes top chunks
-            - Returns a concise answer
+            Input: chunks = list of relevant PDF text
+                   question = user question
+            Output: concise answer (1-2 sentences)
             """
-            # Simple approach: take first sentence of each chunk
-            sentences = [c.split(".")[0] for c in chunks if len(c) > 0]
-            concise_answer = " ".join(sentences)
-            return f"Answer based on PDF: {concise_answer}"
+            context = " ".join(chunks)
+            prompt = f"""
+            You are an AI assistant. Answer the question based on the PDF content.
+            PDF Content:
+            {context}
 
-        answer = summarize_chunks(relevant_chunks, user_question)
+            Question: {question}
+
+            Answer in 1-2 concise sentences, do not copy full chunks.
+            """
+            # ----- Replace the next line with LLaMA / Ollama call -----
+            # Example placeholder: just returns first sentence of first chunk (temporary)
+            return chunks[0].split(".")[0] + "."  # temporary
+            # -----------------------------------------------------------
+
+        answer = generate_concise_answer(relevant_chunks, user_question)
 
         # Append AI answer
         st.session_state.messages.append({"role": "bot", "content": answer})
