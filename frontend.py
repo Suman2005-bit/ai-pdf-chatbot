@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 
 st.set_page_config(page_title="AI PDF Chatbot", page_icon="🤖")
-st.title("🤖 AI PDF Chatbot - Chat Style")
+st.title("🤖 AI PDF Chatbot - Chat Style (Concise Answers)")
 
 # ----------------- Session State -----------------
 if "messages" not in st.session_state:
@@ -47,12 +47,18 @@ if uploaded_file:
         D, I = index.search(np.array(question_embedding), 3)
         relevant_chunks = [chunks[i] for i in I[0]]
 
-        # ----------------- Summarization / AI Call -----------------
-        # Replace this function with LLaMA/Ollama call for real summarization
+        # ----------------- AI Summarization -----------------
+        # Replace this with your LLaMA / Ollama call for real summarization
         def summarize_chunks(chunks, question):
-            combined_text = " ".join(chunks)
-            # Example simple summarization (replace with AI call)
-            return f"Based on the PDF, the answer to your question is:\n{combined_text[:500]}..."  # first 500 chars
+            """
+            Temporary summarization:
+            - Takes top chunks
+            - Returns a concise answer
+            """
+            # Simple approach: take first sentence of each chunk
+            sentences = [c.split(".")[0] for c in chunks if len(c) > 0]
+            concise_answer = " ".join(sentences)
+            return f"Answer based on PDF: {concise_answer}"
 
         answer = summarize_chunks(relevant_chunks, user_question)
 
@@ -67,7 +73,6 @@ if uploaded_file:
             st.markdown(f"**AI:** {msg['content']}")
 
     # ----------------- Optional: Download Chat -----------------
-    import pandas as pd
     if st.button("Download Chat as TXT"):
         chat_text = "\n\n".join([f"{m['role']}: {m['content']}" for m in st.session_state.messages])
         st.download_button("Download Q&A", chat_text, file_name="chat.txt")
