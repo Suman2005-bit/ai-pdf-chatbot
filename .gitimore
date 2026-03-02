@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+pyvenv.cfg
+
+# VS Code / IDE
+.vscode/
+.idea/
+
+# FAISS / NumPy binaries (optional, can regenerate)
+faiss_index.bin
+chunks.npy
+
+# Streamlit cache / temp
+.streamlit/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Windows scripts
+start_app.ps1
